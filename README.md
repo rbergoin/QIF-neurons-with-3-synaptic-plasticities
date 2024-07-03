@@ -1,4 +1,4 @@
-# QIF-neurons-with-3-synaptic-plasticities
+# QIF neurons with 3 synaptic plasticities
 
 Source code of the paper: "Emergence and long-term maintenance of modularity in plastic networks of spiking neurons"
 

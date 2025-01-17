@@ -1,6 +1,6 @@
 # QIF neurons with 3 synaptic plasticities
 
-Source code of the paper: "Emergence and long-term maintenance of modularity in plastic networks of spiking neurons"
+Source code of the paper: "Emergence and maintenance of modularity in neural networks with Hebbian and anti-Hebbian inhibitory STDP"
 
 To run a simulation execute the script "runSimulationC_Py.sh". To save figures, change the value of the variable "save" in this script. The figures generated are put in the "results" folder.
 

@@ -164,6 +164,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 	neurons.tau_d_i = tau_d_i;
 	neurons.ratio = ratio;
 	int nbInhibition = n - n/100.0*ratio;
+	float weightMaxValue = 1.0;
 	
 	//Allocate and initialize type of neuron array
 	neurons.type_neuron = (int *) malloc(sizeof(int) * n);
@@ -180,7 +181,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 				else	//The % remaining are inhibitory neurons
 				{
 					if((i%2)==0)		//one out of two neurons is hebbian inhibitory, the other anti-hebbian inhibitory
-					//if((i<85) || ((i>=95) && (i<100)))		//2 groups of hebbian inhibitory and anti-hebbian inhibitory
+					//if((i<85) || ((i>=95) && (i<100)))		//2 groups of anti-hebbian inhibitory and hebbian inhibitory
 					{
 						neurons.type_neuron[i] = 1;
 					}
@@ -411,7 +412,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 	}
 	if(strcmp(adjacencyPolicy, "rre")==0)						
 	{
-		createRandomRegular(neurons.a, n/4.0, n, ratio);			//Random regular connected, K=n/4 
+		createRandomRegular(neurons.a, n/2.0, n, ratio);			//Random regular connected, K=n/2 
 	}
 	else if(strcmp(adjacencyPolicy, "sw")==0)			
 	{
@@ -509,7 +510,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 							}
 							else
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							//neurons.w[i][j] = get_random(-weightMaxValue, 0.0);
 						}
@@ -517,7 +518,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 						{
 							if((i<(n/100.0*ratio)+a/2 && j<(n/100.0*ratio)+a/2) || (i>=(n/100.0*ratio)+a/2 && j>=(n/100.0*ratio)+a/2))
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							else
 							{
@@ -533,7 +534,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 							}
 							else
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							//neurons.w[i][j] = get_random(-weightMaxValue, 0.0);
 						}
@@ -541,7 +542,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 						{
 							if((i<(n/100.0*ratio)/2 && j<(n/100.0*ratio)+a/2) || (i>=(n/100.0*ratio)/2 && j>=(n/100.0*ratio)+a/2))
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							else
 							{
@@ -553,7 +554,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 						{
 							if((i<(n/100.0*ratio)+a/2 && j<(n/100.0*ratio)/2) || (i>=(n/100.0*ratio)+a/2 && j>=(n/100.0*ratio)/2))
 							{
-								neurons.w[i][j] = 1.0;
+								neurons.w[i][j] = weightMaxValue;
 							}
 							else
 							{
@@ -565,7 +566,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 						{
 							if((i<(n/100.0*ratio)/2 && j<(n/100.0*ratio)/2) || (i>=(n/100.0*ratio)/2 && j>=(n/100.0*ratio)/2))
 							{
-								neurons.w[i][j] = 1.0;
+								neurons.w[i][j] = weightMaxValue;
 							}
 							else
 							{
@@ -654,7 +655,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 							//To the rest 
 							else
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 						}
 						//Hebbian inhibitory to Hebbian inhibitory
@@ -668,7 +669,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 							//To the rest 
 							else
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 						}
 						//Anti-hebbian inhibitory to Hebbian inhibitory
@@ -677,7 +678,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 							//To its cluster 
 							if((i<(n/100.0*ratio)+a/2 && j<(n/100.0*ratio)+a/2) || (i>=(n/100.0*ratio)+a/2 && j>=(n/100.0*ratio)+a/2))
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							//To the rest 
 							else
@@ -691,7 +692,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 							//To its cluster 
 							if((i<(n/100.0*ratio)+a/2 && j<(n/100.0*ratio)+a/2) || (i>=(n/100.0*ratio)+a/2 && j>=(n/100.0*ratio)+a/2))
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							//To the rest 
 							else
@@ -710,7 +711,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 							//To the rest 
 							else
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 						}
 						//Anti-hebbian inhibitory to excitatory
@@ -719,7 +720,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 							//To its cluster 
 							if((i<(n/100.0*ratio)/2 && j<(n/100.0*ratio)+a/2) || (i>=(n/100.0*ratio)/2 && j>=(n/100.0*ratio)+a/2))
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							//To the rest 
 							else
@@ -733,12 +734,12 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 							//To its cluster 
 							if((i<(n/100.0*ratio)+a/2 && j<(n/100.0*ratio)/2) || (i>=(n/100.0*ratio)+a/2 && j>=(n/100.0*ratio)/2))
 							{
-								neurons.w[i][j] = 1.0; //get_random(0.0, 0.99999)
+								neurons.w[i][j] = get_random(0.0, 0.99999); //get_random(0.0, 0.99999)
 							}
 							//To the rest 
 							else
 							{
-								neurons.w[i][j] = 0.0; //get_random(0.0, 0.99999)
+								neurons.w[i][j] = get_random(0.0, 0.99999); //get_random(0.0, 0.99999)
 							}
 						}
 						//Excitatory to Anti-hebbian inhibitory
@@ -747,12 +748,12 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 							//To its cluster 
 							if((i<(n/100.0*ratio)+a/2 && j<(n/100.0*ratio)/2) || (i>=(n/100.0*ratio)+a/2 && j>=(n/100.0*ratio)/2))
 							{
-								neurons.w[i][j] = 1.0; //get_random(0.0, 0.99999)
+								neurons.w[i][j] = get_random(0.0, 0.99999); //get_random(0.0, 0.99999)
 							}
 							//To the rest 
 							else
 							{
-								neurons.w[i][j] = 0.0; //get_random(0.0, 0.99999)
+								neurons.w[i][j] = get_random(0.0, 0.99999); //get_random(0.0, 0.99999)
 							}
 						}
 						//Excitatory to excitatory
@@ -791,26 +792,26 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 							}
 							else
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 						}
 						else if(neurons.type_neuron[j]==2 && (neurons.type_neuron[i]==1 || neurons.type_neuron[i]==2))
 						{
 							if(i<(n/100.0*ratio)+a/4 && j<(n/100.0*ratio)+a/4)
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							else if( (i<(n/100.0*ratio)+2*a/4 && j<(n/100.0*ratio)+2*a/4 ) && (i>=(n/100.0*ratio)+a/4 && j>=(n/100.0*ratio)+a/4) )
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							else if( (i<(n/100.0*ratio)+3*a/4 && j<(n/100.0*ratio)+3*a/4 ) && (i>=(n/100.0*ratio)+2*a/4 && j>=(n/100.0*ratio)+2*a/4) )
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							else if( (i<(n/100.0*ratio)+4*a/4 && j<(n/100.0*ratio)+4*a/4 ) && (i>=(n/100.0*ratio)+3*a/4 && j>=(n/100.0*ratio)+3*a/4) )
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							else
 							{
@@ -837,26 +838,26 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 							}
 							else
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 						}
 						else if(neurons.type_neuron[j]==2)
 						{
 							if(i<(n/100.0*ratio)/4 && j<(n/100.0*ratio)+a/4)
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							else if( (i<2*(n/100.0*ratio)/4 && j<(n/100.0*ratio)+2*a/4 ) && (i>=(n/100.0*ratio)/4 && j>=(n/100.0*ratio)+a/4) )
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							else if( (i<3*(n/100.0*ratio)/4 && j<(n/100.0*ratio)+3*a/4 ) && (i>=2*(n/100.0*ratio)/4 && j>=(n/100.0*ratio)+2*a/4) )
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							else if( (i<4*(n/100.0*ratio)/4 && j<(n/100.0*ratio)+4*a/4 ) && (i>=3*(n/100.0*ratio)/4 && j>=(n/100.0*ratio)+3*a/4) )
 							{
-								neurons.w[i][j] = -1.0;
+								neurons.w[i][j] = -weightMaxValue;
 							}
 							else
 							{
@@ -867,19 +868,19 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 						{
 							if(i<(n/100.0*ratio)+a/4 && j<(n/100.0*ratio)/4)
 							{
-								neurons.w[i][j] = 1.0;
+								neurons.w[i][j] = weightMaxValue;
 							}
 							else if( (i<(n/100.0*ratio)+2*a/4 && j<2*(n/100.0*ratio)/4) && (i>=(n/100.0*ratio)+a/4 && j>=(n/100.0*ratio)/4) )
 							{
-								neurons.w[i][j] = 1.0;
+								neurons.w[i][j] = weightMaxValue;
 							}
 							else if( (i<(n/100.0*ratio)+3*a/4 && j<3*(n/100.0*ratio)/4) && (i>=(n/100.0*ratio)+2*a/4 && j>=2*(n/100.0*ratio)/4) )
 							{
-								neurons.w[i][j] = 1.0;
+								neurons.w[i][j] = weightMaxValue;
 							}
 							else if( (i<(n/100.0*ratio)+4*a/4 && j<4*(n/100.0*ratio)/4) && (i>=(n/100.0*ratio)+3*a/4 && j>=3*(n/100.0*ratio)/4) )
 							{
-								neurons.w[i][j] = 1.0;
+								neurons.w[i][j] = weightMaxValue;
 							}
 							else
 							{
@@ -890,19 +891,19 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 						{
 							if(i<(n/100.0*ratio)/4 && j<(n/100.0*ratio)/4)
 							{
-								neurons.w[i][j] = 1.0;
+								neurons.w[i][j] = weightMaxValue;
 							}
 							else if( (i<2*(n/100.0*ratio)/4 && j<2*(n/100.0*ratio)/4) && (i>=(n/100.0*ratio)/4 && j>=(n/100.0*ratio)/4) )
 							{
-								neurons.w[i][j] = 1.0;
+								neurons.w[i][j] = weightMaxValue;
 							}
 							else if( (i<3*(n/100.0*ratio)/4 && j<3*(n/100.0*ratio)/4) && (i>=2*(n/100.0*ratio)/4 && j>=2*(n/100.0*ratio)/4) )
 							{
-								neurons.w[i][j] = 1.0;
+								neurons.w[i][j] = weightMaxValue;
 							}
 							else if( (i<4*(n/100.0*ratio)/4 && j<4*(n/100.0*ratio)/4) && (i>=3*(n/100.0*ratio)/4 && j>=3*(n/100.0*ratio)/4) )
 							{
-								neurons.w[i][j] = 1.0;
+								neurons.w[i][j] = weightMaxValue;
 							}
 							else
 							{
@@ -1320,8 +1321,10 @@ long double euler_v(long double v_i, long double s_e, long double s_h_i, long do
 * @param	neurons			pointer on the current network
 * @param	spikes			if neurons spike
 * @param	t				iteration time
+* @param	fptr			file to register
+* @param	save			if we register the spikes
 */   
-void update_states(struct neurons *neurons, int* spikes, int t)
+void update_states(struct neurons *neurons, int* spikes, int t, FILE *fptr, int save)
 {
     int i;
 	
@@ -1359,7 +1362,11 @@ void update_states(struct neurons *neurons, int* spikes, int t)
 			neurons->state_neuron[i] = -1;
 			spikes[i] = 1;
 			neurons->t_spikes[i] = t*neurons->dt;		//conversion iteration time in second
-			saveSpike(i, neurons->t_spikes[i]);
+			
+			if(save)
+			{
+				saveSpike(fptr, i, neurons->t_spikes[i]);
+			}
 		}
 		
 		if((neurons->state_neuron[i] == -1) && (t*neurons->dt >= (neurons->t_refractory[i] + (2.0/neurons->v[i])*neurons->tau_m )))	//if the neuron had time to refract
@@ -1576,7 +1583,7 @@ long double RK_w(long double w_i_j, long double t_i, long double t_j, float dt, 
 	long double w1, w2, w3, w4;
 	long double delta_pot = 0.0;
 	long double delta_dep = 0.0;
-	float forgetting = 0.1;	
+	float forgetting = 0.1;	//0.1 0.05 0.04 0.025 0.02 0.0125 0.01
 	
 	if(type_neuron_j==0) 			//If the presynaptic neuron j is excitatory
 	{

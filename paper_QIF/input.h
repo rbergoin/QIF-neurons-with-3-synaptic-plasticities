@@ -22,23 +22,13 @@ void swap(double* xp, double* yp)
 /*
 * Function to save a spike of neuron
 *
+* @param	fptr		file to register
 * @param	i			index of the neuron
 * @param	t_spike		time of the spike in second
 */
-void saveSpike(int i, long double t_spike)
+void saveSpike(FILE *fptr, int i, long double t_spike)
 {
-	/**** Save spikes  through the time ****/
-	FILE *fptr = fopen("spikes.txt","a");
-	
-	if(fptr == NULL)
-	{
-		printf("Error!");   
-		exit(1);             
-	}
-	
 	fprintf(fptr,"%d %3.5Lf\n", i, t_spike);
-	
-	fclose(fptr);
 }
  
  

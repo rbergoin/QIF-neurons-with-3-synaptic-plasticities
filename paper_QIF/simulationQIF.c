@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
 		
 		
 		update_states(&neurons, spikes, t, fptrSpike, save);
-		update_weights(&neurons, spikes); 
+		update_weights(&neurons, spikes, nbInput); 
 		
 		
 		/***** Save data *****/

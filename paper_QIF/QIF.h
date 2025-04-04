@@ -1577,13 +1577,14 @@ void anti_hebbian_STDP_symmetric(long double t_i, long double t_j, long double *
 * @param	epsilon1		the dynamic of the neurons for slow adaptation
 * @param	epsilon2		the dynamic of the neurons for fast adaptation
 * @param	type_neuron_j	type of the neuron j
+* @param	nbInput			the number of input to be learned
 */ 
-long double RK_w(long double w_i_j, long double t_i, long double t_j, float dt, float epsilon1, float epsilon2, int type_neuron_j, int type_neuron_i)
+long double RK_w(long double w_i_j, long double t_i, long double t_j, float dt, float epsilon1, float epsilon2, int type_neuron_j, int type_neuron_i, nbInput)
 {   
 	long double w1, w2, w3, w4;
 	long double delta_pot = 0.0;
 	long double delta_dep = 0.0;
-	float forgetting = 0.1;	//0.1 0.05 0.04 0.025 0.02 0.0125 0.01
+	float forgetting = 0.2/(float)nbInput;	//0.1 0.05 0.04 0.025 0.02 0.0125 0.01
 	
 	if(type_neuron_j==0) 			//If the presynaptic neuron j is excitatory
 	{
@@ -1645,8 +1646,9 @@ long double RK_w(long double w_i_j, long double t_i, long double t_j, float dt, 
 *
 * @param	neurons			pointer on the current network
 * @param	spikes			if neurons spike
+* @param	nbInput			the number of input to be learned
 */  
-void update_weights(struct neurons *neurons, int *spikes) 
+void update_weights(struct neurons *neurons, int *spikes, int nbInput) 
 {
     int i, j;
 	//for each neurons of the network
@@ -1656,7 +1658,7 @@ void update_weights(struct neurons *neurons, int *spikes)
 	    {
 			if((neurons->a[i][j]==1) && (spikes[i] || spikes[j])) //if the link between neurons j to i exists and one of the neuron spikes
 			{
-				neurons->w[i][j] = RK_w(neurons->w[i][j], neurons->t_spikes[i], neurons->t_spikes[j], neurons->dt, neurons->epsilon1, neurons->epsilon2, neurons->type_neuron[j], neurons->type_neuron[i]);		
+				neurons->w[i][j] = RK_w(neurons->w[i][j], neurons->t_spikes[i], neurons->t_spikes[j], neurons->dt, neurons->epsilon1, neurons->epsilon2, neurons->type_neuron[j], neurons->type_neuron[i], nbInput);		
 			}
 		}
 	}

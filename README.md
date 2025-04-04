@@ -6,7 +6,7 @@ To run a simulation execute the script "runSimulationC_Py.sh". To save figures, 
 
 The parameters of each simulation (i.e. duration, number of neurons...) can be changed by adapting the corresponding arguments in the execution of the C program. C code don't require any particular external library.
 
-By default the experiment excuted is the "the learning of 2 memories". To execute another experiment, comment the lines of the current experiment and uncomment the lines between /* */ of the chosen experiment in the simulation C program. The ".h" files containing the networks class and the utils functions should not be modified (except forgetting term in RK_w() to adapt accoding to the number of stimuli).
+By default the experiment excuted is the "the learning of 2 memories". To execute another experiment, comment the lines of the current experiment and uncomment the lines between /* */ of the chosen experiment in the simulation C program. The ".h" files containing the networks class and the utils functions should not be modified.
 
 During each simulations raw data (i.e. spikes time, weights matrices, parameters...) are generated in the corresponding ".txt" files, notably used to display the plots.
 Data used to generate paper figures are present in Fig* folders.

@@ -1,7 +1,7 @@
 #include "input.h"
 
 /*
-* Struct to represent a network of N QIF neurons 
+* Structuture to represent a network of N QIF neurons 
 *
 */
 struct neurons 
@@ -27,8 +27,7 @@ struct neurons
 	
 	double g; 							//(chemical) global coupling strength
 	
-	float epsilon1;						//learning rate for the slow adaptation
-	float epsilon2;						//learning rate for the fast adaptation
+	float epsilon;						//learning rate
 	int **a;							//adjacency matrix
 	long double **w;					//coupling weights matrix
 	
@@ -134,8 +133,7 @@ void freeMatrix(long double **matrix, int n)
 * @param	vp					peak value 
 * @param	vr					reset value 	
 * @param	g 					(chemical) global coupling strength
-* @param	epsilon1			learning rate for the slow adaptation
-* @param	epsilon2			learning rate for the fast adaptation
+* @param	epsilon				learning rate
 * @param	dt 		 			integration time step
 * @param	tau_m				membrane time constant
 * @param	tau_d_e				time decay excitatory/AMPA
@@ -147,7 +145,7 @@ void freeMatrix(long double **matrix, int n)
 * @param	vPolicy			    type of policy for the membrane potential array initialization
 * @param	ratio				ratio of excitatory neurons
 */
-struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, float epsilon2, float dt, float tau_m, float tau_d_e, float tau_d_i, char inhibitoryPolicy, char* adjacencyPolicy, char weightPolicy, char etaPolicy, char vPolicy, float ratio)
+struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon, float dt, float tau_m, float tau_d_e, float tau_d_i, char inhibitoryPolicy, char* adjacencyPolicy, char weightPolicy, char etaPolicy, char vPolicy, float ratio)
 {    	
 	int i, j, a, w = sqrt(n);
 	
@@ -156,8 +154,7 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 	neurons.vp = vp;
 	neurons.vr = vr;
 	neurons.g = g;
-	neurons.epsilon1 = epsilon1;
-	neurons.epsilon2 = epsilon2;
+	neurons.epsilon = epsilon;
 	neurons.dt = dt;
 	neurons.tau_m = tau_m;
 	neurons.tau_d_e = tau_d_e;
@@ -183,11 +180,11 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 					if((i%2)==0)		//one out of two neurons is hebbian inhibitory, the other anti-hebbian inhibitory
 					//if((i<85) || ((i>=95) && (i<100)))		//2 groups of anti-hebbian inhibitory and hebbian inhibitory
 					{
-						neurons.type_neuron[i] = 1;
+						neurons.type_neuron[i] = 2;
 					}
 					else
 					{
-						neurons.type_neuron[i] = 2;
+						neurons.type_neuron[i] = 1;
 					}
 				}
 				break;
@@ -1048,15 +1045,14 @@ struct neurons initNeurons(int n, float vp, float vr, double g, float epsilon1, 
 * @param	vp					peak value 
 * @param	vr					reset value 	
 * @param	g 					(chemical) global coupling strength
-* @param	epsilon1			learning rate for the slow adaptation
-* @param	epsilon2			learning rate for the fast adaptation
+* @param	epsilon				learning rate for the slow adaptation
 * @param	dt 		 			integration time step
 * @param	tau_m				membrane time constant
 * @param	tau_d_e				time decay excitatory/AMPA
 * @param	tau_d_i;			time decay inhibitory/GABA
 * @param	ratio				ratio of excitatory neurons
 */
-struct neurons initneuronsSaved(int n, float vp, float vr, double g, float epsilon1, float epsilon2, float dt, float tau_m, float tau_d_e, float tau_d_i, float ratio)
+struct neurons initneuronsSaved(int n, float vp, float vr, double g, float epsilon, float dt, float tau_m, float tau_d_e, float tau_d_i, float ratio)
 {    	
 	FILE *fp;
 	int i, j;
@@ -1066,8 +1062,7 @@ struct neurons initneuronsSaved(int n, float vp, float vr, double g, float epsil
 	neurons.vp = vp;
 	neurons.vr = vr;
 	neurons.g = g;
-	neurons.epsilon1 = epsilon1;
-	neurons.epsilon2 = epsilon2;
+	neurons.epsilon = epsilon;
 	neurons.dt = dt;
 	neurons.tau_m = tau_m;
 	neurons.tau_d_e = tau_d_e;
@@ -1303,13 +1298,13 @@ long double euler_v(long double v_i, long double s_e, long double s_h_i, long do
 {   
 	if(type_neuron==0)
 	{
-		return v_i + (dt/tau)*(v_i*v_i + eta + 1.0*g*s_e + 2.0*g*s_h_i + 4.0*g*s_a_i +input) + sqrt(dt/tau)*get_random_normal(0.0, pow(4.0*M_PI*tau, 2.0), -pow(5.0*M_PI*tau, 2.0), pow(5.0*M_PI*tau, 2.0));
-		//return v_i + (dt/tau)*(v_i*v_i + eta + 1.0*g*s_e + 2.0*g*s_h_i + 4.0*g*s_a_i +input); //No noise 
+		return v_i + (dt/tau)*(v_i*v_i + eta + 1.0*g*s_e + 4.0*g*s_h_i + 2.0*g*s_a_i +input) + sqrt(dt/tau)*get_random_normal(0.0, pow(4.0*M_PI*tau, 2.0), -pow(5.0*M_PI*tau, 2.0), pow(5.0*M_PI*tau, 2.0));
+		//return v_i + (dt/tau)*(v_i*v_i + eta + 1.0*g*s_e + 4.0*g*s_h_i + 2.0*g*s_a_i +input); //No noise 
 	}
 	else
 	{
-		return v_i + (dt/tau)*(v_i*v_i + eta + 1.0*g*s_e + 2.0*g*s_h_i + 4.0*g*s_a_i +input) + sqrt(dt/tau)*get_random_normal(0.0, pow(4.0*M_PI*tau, 2.0), -pow(5.0*M_PI*tau, 2.0), pow(5.0*M_PI*tau, 2.0));
-		//return v_i + (dt/tau)*(v_i*v_i + eta + 1.0*g*s_e + 2.0*g*s_h_i + 4.0*g*s_a_i +input); //No noise 
+		return v_i + (dt/tau)*(v_i*v_i + eta + 1.0*g*s_e + 4.0*g*s_h_i + 2.0*g*s_a_i +input) + sqrt(dt/tau)*get_random_normal(0.0, pow(4.0*M_PI*tau, 2.0), -pow(5.0*M_PI*tau, 2.0), pow(5.0*M_PI*tau, 2.0));
+		//return v_i + (dt/tau)*(v_i*v_i + eta + 1.0*g*s_e + 4.0*g*s_h_i + 2.0*g*s_a_i +input); //No noise 
 	}
 } 
 
@@ -1504,7 +1499,7 @@ void anti_hebbian_STDP_asymmetric(long double t_i, long double t_j, long double 
 
 
 /*
-* Plasticity function for Hebbian STDP symmetric (correlated)(Mexican hat/Ricker wavelet function)
+* Plasticity function for Hebbian STDP symmetric (correlated)(Mexican hat/Ricker wavelet function) (for inhibitory neurons)
 *
 * @param	t_i				time last spike of neuron i (in s)
 * @param	t_j				time last spike of neuron j (in s)
@@ -1514,38 +1509,6 @@ void anti_hebbian_STDP_asymmetric(long double t_i, long double t_j, long double 
 */ 
 void hebbian_STDP_symmetric(long double t_i, long double t_j, long double *delta_pot, long double *delta_dep, float forgetting)
 {
-	long double delta_s, delta_t = t_i-t_j;	
-	float t_scale = 0.1; 		//time window potentiation and depression in s (-40,40 ms potentiation -100,100 ms depression) 
-	float a = 3.0;				//amplitude		//1.371--> a=0.5
-	
-	delta_s = a * (1.0 - pow(delta_t/t_scale, 2.0)) * exp(-pow(delta_t, 2.0) / (2.0*pow(t_scale, 2.0)));
-	
-	delta_s -= forgetting;
-	
-	if(delta_s>=0)
-	{
-		*delta_pot = delta_s;
-		*delta_dep = 0.0;
-	}
-	else
-	{
-		*delta_pot = 0.0;
-		*delta_dep = delta_s;
-	}
-}
-
-
-/*
-* Plasticity function for anti-Hebbian STDP symmetric (uncorrelated)(reverse Mexican hat/Ricker wavelet function)
-*
-* @param	t_i				time last spike of neuron i (in s)
-* @param	t_j				time last spike of neuron j (in s)
-* @param	delta_pot		potentiation brought by the plasticity function	
-* @param	delta_dep		depression brought by the plasticity function
-* @param	forgetting		forgetting constant function added to the plasticity	
-*/ 
-void anti_hebbian_STDP_symmetric(long double t_i, long double t_j, long double *delta_pot, long double *delta_dep, float forgetting)
-{	
 	long double delta_s, delta_t = t_i-t_j;	
 	float t_scale = 0.1; 		//time window potentiation and depression in s (-40,40 ms potentiation -100,100 ms depression) 
 	float a = 3.0;				//amplitude //1.371--> a=0.5
@@ -1568,18 +1531,49 @@ void anti_hebbian_STDP_symmetric(long double t_i, long double t_j, long double *
 
 
 /*
+* Plasticity function for anti-Hebbian STDP symmetric (uncorrelated)(reverse Mexican hat/Ricker wavelet function) (for inhibitory neurons)
+*
+* @param	t_i				time last spike of neuron i (in s)
+* @param	t_j				time last spike of neuron j (in s)
+* @param	delta_pot		potentiation brought by the plasticity function	
+* @param	delta_dep		depression brought by the plasticity function
+* @param	forgetting		forgetting constant function added to the plasticity	
+*/ 
+void anti_hebbian_STDP_symmetric(long double t_i, long double t_j, long double *delta_pot, long double *delta_dep, float forgetting)
+{	
+	long double delta_s, delta_t = t_i-t_j;	
+	float t_scale = 0.1; 		//time window potentiation and depression in s (-40,40 ms potentiation -100,100 ms depression) 
+	float a = 3.0;				//amplitude		//1.371--> a=0.5
+	
+	delta_s = a * (1.0 - pow(delta_t/t_scale, 2.0)) * exp(-pow(delta_t, 2.0) / (2.0*pow(t_scale, 2.0)));
+	
+	delta_s -= forgetting;
+	
+	if(delta_s>=0)
+	{
+		*delta_pot = delta_s;
+		*delta_dep = 0.0;
+	}
+	else
+	{
+		*delta_pot = 0.0;
+		*delta_dep = delta_s;
+	}
+}
+
+
+/*
 * Runge-kutta method 4th order for the weight (w)
 *
 * @param	w_i_j			the couping value for link from node j and to i
 * @param	t_i				time last spike of neuron i (in s)
 * @param	t_j				time last spike of neuron j (in s)
 * @param	dt				the stepsize of the RK method
-* @param	epsilon1		the dynamic of the neurons for slow adaptation
-* @param	epsilon2		the dynamic of the neurons for fast adaptation
+* @param	epsilon			the dynamic of the neurons
 * @param	type_neuron_j	type of the neuron j
 * @param	nbInput			the number of input to be learned
 */ 
-long double RK_w(long double w_i_j, long double t_i, long double t_j, float dt, float epsilon1, float epsilon2, int type_neuron_j, int type_neuron_i, nbInput)
+long double RK_w(long double w_i_j, long double t_i, long double t_j, float dt, float epsilon, int type_neuron_j, int nbInput)
 {   
 	long double w1, w2, w3, w4;
 	long double delta_pot = 0.0;
@@ -1590,50 +1584,37 @@ long double RK_w(long double w_i_j, long double t_i, long double t_j, float dt, 
 	{
 		hebbian_STDP_asymmetric_2(t_i, t_j, &delta_pot, &delta_dep, forgetting);
 		
-		if(type_neuron_i==0) 			//If the postsynaptic neuron i is excitatory
-		{
-			w1 = epsilon2 * (-tanhl(100.0*(w_i_j-1.0)) * delta_pot + tanhl(100.0*(w_i_j)) * delta_dep);
+		w1 = epsilon * (-tanhl(100.0*(w_i_j-1.0)) * delta_pot + tanhl(100.0*(w_i_j)) * delta_dep);
 	
-			w2 = epsilon2 * (-tanhl(100.0*((w_i_j+w1*dt/2.0)-1.0)) * delta_pot + tanhl(100.0*((w_i_j+w1*dt/2.0))) * delta_dep);
+		w2 = epsilon * (-tanhl(100.0*((w_i_j+w1*dt/2.0)-1.0)) * delta_pot + tanhl(100.0*((w_i_j+w1*dt/2.0))) * delta_dep);
 	
-			w3 = epsilon2 * (-tanhl(100.0*((w_i_j+w2*dt/2.0)-1.0)) * delta_pot + tanhl(100.0*((w_i_j+w2*dt/2.0))) * delta_dep);
+		w3 = epsilon * (-tanhl(100.0*((w_i_j+w2*dt/2.0)-1.0)) * delta_pot + tanhl(100.0*((w_i_j+w2*dt/2.0))) * delta_dep);
 	
-			w4 = epsilon2 * (-tanhl(100.0*((w_i_j+w3*dt)-1.0)) * delta_pot + tanhl(100.0*((w_i_j+w3*dt))) * delta_dep);
-		}
-		else
-		{
-			w1 = epsilon1 * (-tanhl(100.0*(w_i_j-1.0)) * delta_pot + tanhl(100.0*(w_i_j)) * delta_dep);
-	
-			w2 = epsilon1 * (-tanhl(100.0*((w_i_j+w1*dt/2.0)-1.0)) * delta_pot + tanhl(100.0*((w_i_j+w1*dt/2.0))) * delta_dep);
-	
-			w3 = epsilon1 * (-tanhl(100.0*((w_i_j+w2*dt/2.0)-1.0)) * delta_pot + tanhl(100.0*((w_i_j+w2*dt/2.0))) * delta_dep);
-	
-			w4 = epsilon1 * (-tanhl(100.0*((w_i_j+w3*dt)-1.0)) * delta_pot + tanhl(100.0*((w_i_j+w3*dt))) * delta_dep);
-		}	
+		w4 = epsilon * (-tanhl(100.0*((w_i_j+w3*dt)-1.0)) * delta_pot + tanhl(100.0*((w_i_j+w3*dt))) * delta_dep);	
 	}
 	else if(type_neuron_j==1) 		//If the presynaptic neuron j is hebbian inhibitory
 	{
 		hebbian_STDP_symmetric(t_i, t_j, &delta_pot, &delta_dep, forgetting);
 		
-		w1 = epsilon1 * (-tanhl(100.0*(w_i_j)) * delta_pot + tanhl(100.0*(w_i_j+1.0)) * delta_dep);
+		w1 = epsilon * (-tanhl(100.0*(w_i_j)) * delta_pot + tanhl(100.0*(w_i_j+1.0)) * delta_dep);
 	
-		w2 = epsilon1 * (-tanhl(100.0*((w_i_j+w1*dt/2.0))) * delta_pot + tanhl(100.0*((w_i_j+w1*dt/2.0)+1.0)) * delta_dep);
+		w2 = epsilon * (-tanhl(100.0*((w_i_j+w1*dt/2.0))) * delta_pot + tanhl(100.0*((w_i_j+w1*dt/2.0)+1.0)) * delta_dep);
 	
-		w3 = epsilon1 * (-tanhl(100.0*((w_i_j+w2*dt/2.0))) * delta_pot + tanhl(100.0*((w_i_j+w2*dt/2.0)+1.0)) * delta_dep);
+		w3 = epsilon * (-tanhl(100.0*((w_i_j+w2*dt/2.0))) * delta_pot + tanhl(100.0*((w_i_j+w2*dt/2.0)+1.0)) * delta_dep);
 	
-		w4 = epsilon1 * (-tanhl(100.0*((w_i_j+w3*dt))) * delta_pot + tanhl(100.0*((w_i_j+w3*dt)+1.0)) * delta_dep);
+		w4 = epsilon * (-tanhl(100.0*((w_i_j+w3*dt))) * delta_pot + tanhl(100.0*((w_i_j+w3*dt)+1.0)) * delta_dep);
 	} 
 	else							//If the presynaptic neuron j is anti-hebbian inhibitory
 	{
 		anti_hebbian_STDP_symmetric(t_i, t_j, &delta_pot, &delta_dep, forgetting);	
 		
-		w1 = epsilon1 * (-tanhl(100.0*(w_i_j)) * delta_pot + tanhl(100.0*(w_i_j+1.0)) * delta_dep);
+		w1 = epsilon * (-tanhl(100.0*(w_i_j)) * delta_pot + tanhl(100.0*(w_i_j+1.0)) * delta_dep);
 	
-		w2 = epsilon1 * (-tanhl(100.0*((w_i_j+w1*dt/2.0))) * delta_pot + tanhl(100.0*((w_i_j+w1*dt/2.0)+1.0)) * delta_dep);
+		w2 = epsilon * (-tanhl(100.0*((w_i_j+w1*dt/2.0))) * delta_pot + tanhl(100.0*((w_i_j+w1*dt/2.0)+1.0)) * delta_dep);
 	
-		w3 = epsilon1 * (-tanhl(100.0*((w_i_j+w2*dt/2.0))) * delta_pot + tanhl(100.0*((w_i_j+w2*dt/2.0)+1.0)) * delta_dep);
+		w3 = epsilon * (-tanhl(100.0*((w_i_j+w2*dt/2.0))) * delta_pot + tanhl(100.0*((w_i_j+w2*dt/2.0)+1.0)) * delta_dep);
 	
-		w4 = epsilon1 * (-tanhl(100.0*((w_i_j+w3*dt))) * delta_pot + tanhl(100.0*((w_i_j+w3*dt)+1.0)) * delta_dep);
+		w4 = epsilon * (-tanhl(100.0*((w_i_j+w3*dt))) * delta_pot + tanhl(100.0*((w_i_j+w3*dt)+1.0)) * delta_dep);
 	}
 	
 	
@@ -1658,7 +1639,7 @@ void update_weights(struct neurons *neurons, int *spikes, int nbInput)
 	    {
 			if((neurons->a[i][j]==1) && (spikes[i] || spikes[j])) //if the link between neurons j to i exists and one of the neuron spikes
 			{
-				neurons->w[i][j] = RK_w(neurons->w[i][j], neurons->t_spikes[i], neurons->t_spikes[j], neurons->dt, neurons->epsilon1, neurons->epsilon2, neurons->type_neuron[j], neurons->type_neuron[i], nbInput);		
+				neurons->w[i][j] = RK_w(neurons->w[i][j], neurons->t_spikes[i], neurons->t_spikes[j], neurons->dt, neurons->epsilon, neurons->type_neuron[j], nbInput);		
 			}
 		}
 	}

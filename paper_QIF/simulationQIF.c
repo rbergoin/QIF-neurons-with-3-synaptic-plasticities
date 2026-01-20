@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 {	
     srand(time(NULL)); // randomize seed
 	
-	int t, i, j, degree;
+	int t, i, j;
 		
 	FILE *fptr;
 	FILE *fptrMatrix;
@@ -194,8 +194,7 @@ int main(int argc, char *argv[])
 	float vp;							//peak value
 	float vr; 							//reset value
 	double g;							//(chemical) global coupling strength
-	float epsilon1;						//learning rate for the slow adaptation
-	float epsilon2;						//learning rate for the fast adaptation
+	float epsilon;						//learning rate
 	float dt;							//integration time step
 	float tau_m;						//membrane time constant
 	float tau_d_e;						//time decay excitatory/AMPA
@@ -214,14 +213,13 @@ int main(int argc, char *argv[])
 	int nbExcitatoryNeurons;			//The number of excitatory neurons
 	int nbInhibitoryNeurons;			//The number of inhibitory neurons
 	
-	if(argc < 19 || argc > 19) 
+	if(argc < 18 || argc > 18) 
 	{
 		n = 100;
 		vp = 10.0;
 		vr = -10.0;
 		g = 100.0;
-		epsilon1 = 1.0;
-		epsilon2 = 1.0;
+		epsilon = 1.0;
 		dt = 0.001;
 		tau_m = 0.02;
 		tau_d_e = 0.002;
@@ -241,35 +239,34 @@ int main(int argc, char *argv[])
 		vp = atof(argv[3]);
 		vr = atof(argv[4]);
 		g = atof(argv[5]);
-		epsilon1 = atof(argv[6]);
-		epsilon2 = atof(argv[7]);
-		dt = atof(argv[8]);
-		tau_m = atof(argv[9]);
-		tau_d_e = atof(argv[10]);
-		tau_d_i = atof(argv[11]);
+		epsilon = atof(argv[6]);
+		dt = atof(argv[7]);
+		tau_m = atof(argv[8]);
+		tau_d_e = atof(argv[9]);
+		tau_d_i = atof(argv[10]);
 		nbIterations = atoi(argv[1])/dt;
-		inhibitoryPolicy = argv[12][0];
-		adjacencyPolicy = argv[13];
-		weightPolicy = argv[14][0];
-		etaPolicy = argv[15][0];
-		vPolicy = argv[16][0];
-		ratio = atof(argv[17]);
-		load = atoi(argv[18]);
+		inhibitoryPolicy = argv[11][0];
+		adjacencyPolicy = argv[12];
+		weightPolicy = argv[13][0];
+		etaPolicy = argv[14][0];
+		vPolicy = argv[15][0];
+		ratio = atof(argv[16]);
+		load = atoi(argv[17]);
 	}
 	
 	
 	struct neurons neurons;
 	if(load)
 	{
-		neurons =  initneuronsSaved(n, vp, vr, g, epsilon1, epsilon2, dt, tau_m, tau_d_e, tau_d_i, ratio);	//Create a network of n neurons from a save		
+		neurons =  initneuronsSaved(n, vp, vr, g, epsilon, dt, tau_m, tau_d_e, tau_d_i, ratio);	//Create a network of n neurons from a save		
 	}
 	else
 	{
-		neurons = initNeurons(n, vp, vr, g, epsilon1, epsilon2, dt, tau_m, tau_d_e, tau_d_i, inhibitoryPolicy, adjacencyPolicy, weightPolicy, etaPolicy, vPolicy, ratio); 		//Create a network of n neurons		
+		neurons = initNeurons(n, vp, vr, g, epsilon, dt, tau_m, tau_d_e, tau_d_i, inhibitoryPolicy, adjacencyPolicy, weightPolicy, etaPolicy, vPolicy, ratio); 		//Create a network of n neurons		
 	}
 	
 	
-	degree =  graphDegree(neurons.a, n);
+	//int degree =  graphDegree(neurons.a, n);
 	int *spikes;
 	spikes =  (int *) calloc(n, sizeof(int));
 	nbExcitatoryNeurons = neurons.n/100.0*ratio;

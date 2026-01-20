@@ -129,9 +129,9 @@ for x in f:
 
 f.close()
 changeRates = np.array(changeRates)
-changeRates = changeRates[1:, :]
-#changeRates = changeRates * 10.0  #normalize by delta t = 0.1s
-changeRates = changeRates * 1.0  #normalize by delta t = 1.0s
+changeRates = changeRates[0:, :]
+changeRates = changeRates * 10.0  #normalize by delta t = 0.1s
+#changeRates = changeRates * 1.0  #normalize by delta t = 1.0s
 
 f = open("inhibitory.txt", "r")
 inhibitory = []
@@ -183,8 +183,8 @@ else:
 
 """ Process data """ 
 
-#startIterations = int(0.0/dt)
-startIterations = int((tfinal-40.0)/dt) #time to start calculating order parameters and firing rates
+startIterations = int(0.0/dt)
+#startIterations = int((tfinal-2000.0)/dt) #time to start calculating order parameters and firing rates
 
 #Calculate order parameters through the time
 orderParameter1 = np.zeros(iterations+1)
@@ -617,6 +617,8 @@ else :
     plt.gca().set_title('Weight matrix (sorted) TF', fontsize=25)
     plt.show() 
 
+#times = [0.0, 40.0, 400.0, 4000.0]
+times = [0, 1, 2, 4, 6, 12, 18, 24]
 
 #Weights matrices (sorted)
 if animated:
@@ -632,7 +634,9 @@ if animated:
     cbar = fig.colorbar(img)
     cbar.ax.tick_params(labelsize=20)
     def animateWeightsMatrices(frame):
-        ax.set_title('Weight matrix (sorted) T%d' % (frame%len(matrices)), fontsize=25)
+        #ax.set_title('Weight matrix (sorted) T%d' % (frame%len(matrices)), fontsize=25)
+        #0.0 40.0 400.0 4000.0 
+        ax.set_title('Weight matrix t=%dh' % times[(frame%len(matrices))] , fontsize=25)
         ax.matshow(matrices[frame%len(matrices)], cmap=cmap_div, vmin=-1, vmax=1)
         plt.gca().xaxis.tick_bottom()
         plt.gca().invert_yaxis()
@@ -640,7 +644,8 @@ if animated:
     if save : 
         plt.gcf().set_size_inches(16, 9)
         #writer = animation.FFMpegWriter(bitrate=-1, codec="libx264", extra_args=['-pix_fmt', 'yuv420p'])
-        ani.save("results/weights_matrix_sorted.mp4")
+        #ani.save("results/weights_matrix_sorted.mp4")
+        ani.save("results/weights_matrix_sorted.gif", writer="pillow", fps=0.5, dpi=80)
         plt.close()
     else :
         plt.show()
@@ -669,7 +674,7 @@ else :
     plt.gca().set_title('Distribution of the weights (log scale)', fontsize=25)
     plt.show() 
     
-
+"""
 #Evolution of the change rate of weights
 fig, ax = plt.subplots(figsize=(9.0,3.0))
 
@@ -724,13 +729,14 @@ if save :
     if animated:
         plt.gcf().set_size_inches(16, 9)
         writer = animation.FFMpegWriter(bitrate=-1, codec="libx264", extra_args=['-pix_fmt', 'yuv420p'])
-        ani.save("results/rateChange_weights.mp4", writer=writer)
+        #ani.save("results/rateChange_weights.mp4", writer=writer, dpi=80)
+        ani.save("results/rateChange_weights.gif", writer="pillow", fps=1, dpi=80)
     plt.close()
 else :
     plt.gca().set_title('Average evolution of the change rate of weights', fontsize=25)
     plt.show() 
   
-
+"""
     
 """
 
@@ -739,7 +745,7 @@ else :
 
 
 """
-   
+"""   
 #Time development of the order parameters
 fig, ax = plt.subplots()
 ax.plot(tpoints[0:len(orderParameter1_1)], orderParameter1_1, label='Cluster 1', color='green') 
@@ -775,12 +781,13 @@ if save :
     if animated:
         plt.gcf().set_size_inches(16, 9)
         writer = animation.FFMpegWriter(bitrate=-1, codec="libx264", extra_args=['-pix_fmt', 'yuv420p'])
-        ani.save("results/order_parameters.mp4", writer=writer)
+        #ani.save("results/order_parameters.mp4", writer=writer)
+        ani.save("results/order_parameters.gif", writer="pillow", fps=1)
     plt.close()
 else :
     plt.gca().set_title('Evolution of the Kuramoto order parameters', fontsize=25)
     plt.show() 
-
+"""
 
 
 #Spikes evolution
@@ -812,16 +819,17 @@ ax.scatter(spike_times, spike_ids, c=colors, s=10.0, edgecolors='none', marker='
 #if adimensional :
 #    plt.gca().set_xlabel('Time', fontsize=20)
 #else :
-#    plt.gca().set_xlabel('Time (s)', fontsize=20)
-#plt.gca().set_ylabel('Neurons', fontsize=20)
-#plt.xticks(fontsize=20)
-#plt.yticks(fontsize=20)
+plt.gca().set_xlabel('Time (s)', fontsize=15)
+plt.gca().set_ylabel('Neurons', fontsize=15)
+plt.xticks(fontsize=15)
+plt.yticks(fontsize=15)
 
 if animated:
     def animateSpikesEvolution(frame):
-        ax.set_xlim(frame*0.02, frame*0.02+0.5)   #0.02s step, 0.5s window
+        #ax.set_xlim(frame*0.02, frame*0.02+0.5)   #0.02s step, 0.5s window
+        ax.set_xlim(2660+frame*0.25, 2690+frame*0.25)   #0.02s step, 30s window
     speedFactor = 10
-    ani = animation.FuncAnimation(fig, animateSpikesEvolution, interval=10*speedFactor, blit=False, frames=50*round(dt*iterations), cache_frame_data=False, repeat=False) #50 frames per simulation second
+    ani = animation.FuncAnimation(fig, animateSpikesEvolution, interval=10*speedFactor, blit=False, frames=200, cache_frame_data=False, repeat=False) #50 frames per simulation second 50*round(dt*iterations)
 
 if save : 
     
@@ -832,10 +840,11 @@ if save :
     plt.savefig('results/spikes_evolution_simu.pdf', dpi=300, bbox_inches='tight')
     plt.gca().autoscale()
     if animated:
-        plt.gca().set_title('Spike trains', fontsize=25)
-        plt.gcf().set_size_inches(16, 9)
+        plt.gca().set_title('Spike trains', fontsize=15)
+        plt.gcf().set_size_inches(9, 5)
         writer = animation.FFMpegWriter(bitrate=-1, codec="libx264", extra_args=['-pix_fmt', 'yuv420p'])
-        ani.save("results/spikes_evolution.mp4", writer=writer)
+        #ani.save("results/spikes_evolution.mp4", writer=writer)
+        ani.save("results/spikes_evolution.gif", writer="pillow", fps=4, dpi=80)
     plt.close()
 else : 
     plt.gca().set_title('Spikes of neurons through the time', fontsize=25)
@@ -898,7 +907,7 @@ if save:
 
 
 
-
+"""  
 #Spike counts 
 i=8     #index of the memory
 selected_neurons = [0+i, 33+2*i, 34+2*i]
@@ -961,7 +970,7 @@ plt.tight_layout()
 if save:
     plt.savefig('results/hist_evolution_simu_paper_4H.png', bbox_inches='tight', dpi=300 )
 
-    
+"""    
 
 
 #Firing rates  
@@ -985,7 +994,7 @@ meanFrequenciesNetwork2 = meanFrequenciesNetwork2/len(allMeanFrequencies2)
 
 #meanFrequenciesNetwork4 = np.sum(allMeanFrequencies4, axis=0)
 #meanFrequenciesNetwork4 = meanFrequenciesNetwork4/len(allMeanFrequencies4)
-
+"""
 fig, ax = plt.subplots()
 #ax.plot(tpoints, meanFrequenciesNetwork, label='Network')
 ax.plot(tpoints, meanFrequenciesNetwork1, label='Cluster 1', color='green', linewidth=4) 
@@ -1016,17 +1025,18 @@ if save :
     if animated:
         plt.gcf().set_size_inches(16, 9)
         writer = animation.FFMpegWriter(bitrate=-1, codec="libx264", extra_args=['-pix_fmt', 'yuv420p'])
-        ani.save("results/mean_firing_rate_evolution_network.mp4", writer=writer)
+        #ani.save("results/mean_firing_rate_evolution_network.mp4", writer=writer)
+        ani.save("results/mean_firing_rate_evolution_network.gif", writer="pillow", fps=1, dpi=80)
     plt.close()
 else :
     plt.gca().set_title('Mean firing rates of the network', fontsize=25)
     plt.show() 
- 
+""" 
    
     
     
 #Calculate PDF firing rate
-cst = 0.0000000 #to avoid null PDF (for log in free energy)
+cst = 0.00000000001 #to avoid null PDF (for log in free energy)
 counts, bins = np.histogram(meanFrequenciesNetwork[startIterations:], bins=30)
 counts = counts+cst
 pdf_Network = counts / sum(counts)
@@ -1077,7 +1087,7 @@ else :
 
 
 #Calculate PDF mean change rate of weights
-cst = 0.0000000 #to avoid null PDF (for log in free energy)
+cst = 0.00000000001 #to avoid null PDF (for log in free energy)
 bin_min = -0.02
 bin_max = 0.04
 num_bins = 100
@@ -1132,7 +1142,7 @@ else :
 
 #Calculate the PDF and the free energy of the Kuramoto Order parameter
 #Calculate PDF
-cst = 0.0000000 #to avoid null PDF (for log in free energy)
+cst = 0.00000000001 #to avoid null PDF (for log in free energy)
 counts, bins = np.histogram(orderParameter1[startIterations:], bins=100)
 counts = counts+cst
 pdf_Network = counts / sum(counts)
@@ -1186,54 +1196,56 @@ else :
 #MIX PLOTS RESULTS  
 colorsCodes = [newred if inhibitory[i]==1 else newblue for i in range(len(inhibitory))]
 fig, axs = plt.subplots(4, sharex=True)
-#plt.gca().set_xlabel('Time (s)') #, fontsize=20
+plt.gca().set_xlabel('Time (s)', fontsize=15) #, fontsize=20
 
 #axs[0].eventplot(spikes, colors=colorsCodes, lineoffsets=1, linelengths=1.0, linewidths=2)
 axs[0].scatter(spike_times, spike_ids, c=colors, s=10.0, edgecolors='none', marker='.')  # 's' is the size of the points #[::5] to have 1/5 data s=1.0 for 200,000N
-#axs[0].set_ylabel('Neurons')  #, fontsize=20
+axs[0].set_ylabel('Neurons', fontsize=15)  #, fontsize=20
 axs[0].set_yticks((0,int(nbExcit/2),nbExcit,nbNeurons))
-axs[0].set_yticklabels((0,int(nbExcit/2),nbExcit,nbNeurons), fontsize=4)
+axs[0].set_yticklabels((0,int(nbExcit/2),nbExcit,nbNeurons), fontsize=15)
 
 
 axs[1].plot(tpoints, orderParameter1_1, label='Cluster 1', color='green') 
 axs[1].plot(tpoints, orderParameter1_2, label='Cluster 2', color='orange')
 axs[1].plot(tpoints, orderParameter1, label='Network', color='grey') 
 axs[1].set_yticks((0,0.5,1))
-axs[1].set_yticklabels((0,0.5,1), fontsize=4)
-#axs[1].set_ylabel('Order \nparameter')       #, fontsize=20
+axs[1].set_yticklabels((0,0.5,1), fontsize=15)
+axs[1].set_ylabel('Order \nparameter', fontsize=15)       #, fontsize=20
 #axs[1].legend(fontsize=20)
 
 axs[2].plot(tpoints, meanFrequenciesNetwork1, color='green') #, label='Cluster 1'
 axs[2].plot(tpoints, meanFrequenciesNetwork2, color='orange')  #, label='Cluster 2'
 #axs[2].plot(tpoints, meanFrequenciesNetwork, color='grey') 
 axs[2].set_yticks((0,10,20))
-axs[2].set_yticklabels((0,10,20), fontsize=4)
-#axs[2].set_ylabel('Mean firing \nrate (Hz)') #, fontsize=20
+axs[2].set_yticklabels((0,10,20), fontsize=15)
+axs[2].set_ylabel('Mean firing \nrate (Hz)', fontsize=15) #, fontsize=20
 #axs[2].legend(fontsize=20)
 
-axs[3].plot(tpoints[0:len(tpoints)-2], changeRates[:,1], color='green')  #, label='Cluster 1'
-axs[3].plot(tpoints[0:len(tpoints)-2], changeRates[:,2], color='orange')  #, label='Cluster 2'
+axs[3].plot(tpoints[0:len(tpoints)-1], changeRates[:,1], color='green')  #, label='Cluster 1'
+axs[3].plot(tpoints[0:len(tpoints)-1], changeRates[:,2], color='orange')  #, label='Cluster 2'
 #axs[3].plot(tpoints[0:len(tpoints)-1], changeRates[:,0], color='grey')
 axs[3].set_yticks((0.00,0.01,0.02))
-axs[3].set_yticklabels((0.00,0.01,0.02), fontsize=4)
+axs[3].set_yticklabels((0.00,0.01,0.02), fontsize=15)
 #axs[3].legend(fontsize=20)
-#axs[3].set_ylabel('Mean change \nrate of weights') #, fontsize=20
+axs[3].set_ylabel('Mean change \nrate of weights', fontsize=15) #, fontsize=20
 
 #axs[4].plot(tpoints[0:len(phases_network)], np.sum(phases_network[:, 0:40], axis=1)/40.0)  #, label='Cluster 1'
 #axs[4].plot(tpoints[0:len(phases_network)], np.sum(phases_network[:, 40:80], axis=1)/40.0)  #, label='Cluster 2'
 #axs[4].set_ylabel('Phase') #, fontsize=20
 
-fig.legend(bbox_to_anchor=(0.5, -0.09), loc='lower center', fontsize=4, ncol=3)
+#fig.legend(bbox_to_anchor=(0.5, -0.09), loc='lower center', fontsize=4, ncol=3)
+fig.legend(fontsize=15)
 
-plt.xticks(fontsize=4)
-#plt.yticks(fontsize=8)
+plt.xticks(fontsize=15)
+plt.yticks(fontsize=15)
 
 if animated:
     def animateMix(frame):
         for ax in axs.flat:
-            axs[0].set_xlim(frame*0.02, frame*0.02+0.5)   #0.02s step, 0.5s window
+            axs[0].set_xlim(2660+frame*0.25, 2690+frame*0.25)   #1.0s step, 0.5s window
+        axs[3].set_ylim(top=0.025)
     speedFactor = 10
-    ani = animation.FuncAnimation(fig, animateMix, interval=10*speedFactor, blit=False, frames=50*round(dt*len(tpoints)), cache_frame_data=False, repeat=False) #50 frames per simulation second
+    ani = animation.FuncAnimation(fig, animateMix, interval=10*speedFactor, blit=False, frames=200, cache_frame_data=False, repeat=False) #50 frames per simulation second 50*round(dt*len(tpoints))
     
 if save : 
     #plt.gca().set_xlim(1830, 1860)
@@ -1254,7 +1266,8 @@ if save :
     if animated:
         plt.gcf().set_size_inches(16, 9)
         writer = animation.FFMpegWriter(bitrate=-1, codec="libx264", extra_args=['-pix_fmt', 'yuv420p'])
-        ani.save("results/mix.mp4", writer=writer)
+        #ani.save("results/mix.mp4", writer=writer)
+        ani.save("results/mix.gif", writer="pillow", fps=4, dpi=80)
     plt.close()
 else :
     plt.show() 
